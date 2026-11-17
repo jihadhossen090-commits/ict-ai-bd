@@ -31,10 +31,11 @@ h1{margin:0 0 6px;font-size:1.65rem}.sub{margin:0 0 18px;color:var(--mute);font-
 .opt{padding:13px 16px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer;display:flex;align-items:center;gap:10px;font-size:1rem}
 .opt:hover{border-color:var(--brand)}.opt.correct{background:rgba(22,163,74,.14);border-color:var(--ok);color:var(--ok);font-weight:700}
 .opt.wrong{background:rgba(220,38,38,.14);border-color:var(--bad);color:var(--bad);font-weight:700}
-.fb{margin-top:16px;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bub);display:block}
-.fb.ok{border-color:var(--ok);background:rgba(22,163,74,.12); color: var(--ok)}.fb.bad{border-color:var(--bad);background:rgba(220,38,38,.12); color: var(--bad)}
-.fb-title{font-weight:700;font-size:1rem;margin-bottom:4px}
-#fbExp { margin-top: 6px; font-size: 0.95rem; color: var(--ink); }
+.fb{margin-top:16px;padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bub);display:none}
+.fb.ok{border-color:var(--ok);background:rgba(22,163,74,.12); color:var(--ok)}
+.fb.bad{border-color:var(--bad);background:rgba(220,38,38,.12); color:var(--bad)}
+.fb-title{font-weight:700;font-size:1.1rem;margin-bottom:6px}
+.fb-exp{font-size:0.98rem;color:var(--ink);margin-top:6px;line-height:1.5}
 .btn{padding:11px 20px;border-radius:12px;border:0;background:var(--brand);color:var(--brand-ink);font:inherit;font-weight:700;cursor:pointer;font-size:.95rem;margin-top:16px}
 .btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
 .res-big{font-size:2.1rem;font-weight:700;color:var(--brand);margin:6px 0}
@@ -69,10 +70,13 @@ h1{margin:0 0 6px;font-size:1.65rem}.sub{margin:0 0 18px;color:var(--mute);font-
       </div>
       <div class="qtext" id="qText"></div>
       <div class="opts" id="optList"></div>
-      <div class="fb" id="fbBox" style="display:none;">
+      
+      <!-- সুবিন্যস্ত ফিডব্যাক বক্স -->
+      <div class="fb" id="fbBox">
         <div class="fb-title" id="fbTitle"></div>
-        <div id="fbExp"></div>
+        <div class="fb-exp" id="fbExp"></div>
       </div>
+
       <button class="btn" id="nextBtn" style="display:none" onclick="nextQuestion()">পরবর্তী প্রশ্ন →</button>
     </div>
   </div>
@@ -185,7 +189,7 @@ async function startChapter(idx) {
     const raw = data.reply.replace(/```json|```/g, '').trim();
     let list = JSON.parse(raw.slice(raw.indexOf('['), raw.lastIndexOf(']') + 1));
     
-    // কঠোরভাবে নিশ্চিত করা হলো যেন তালিকার দৈর্ঘ্য কোনোভাবেই ২৫টির বেশি না হয়
+    // নিশ্চিত করা হলো যেন প্রশ্ন সংখ্যা কখনোই ২৫টির বেশি না হয়
     if (list.length > 25) {
       list = list.slice(0, 25);
     }
@@ -224,25 +228,24 @@ function showQuestion() {
 function selectOption(chosenIdx, el) {
   if (answeredCurrent) return;
   answeredCurrent = true;
-  const item = activeList[curIdx], opts = document.getElementById('optList').querySelectorAll('.opt'), fbBox = document.getElementById('fbBox'), fbTitle = document.getElementById('fbTitle');
+  const item = activeList[curIdx], opts = document.getElementById('optList').querySelectorAll('.opt'), fbBox = document.getElementById('fbBox'), fbTitle = document.getElementById('fbTitle'), fbExp = document.getElementById('fbExp');
   
   if (chosenIdx === item.ans) {
     score++; 
     el.classList.add('correct'); 
     fbBox.className = 'fb ok'; 
-    fbTitle.textContent = '✔ সঠিক উত্তর!';
+    fbTitle.textContent = '✔ সঠিক!';
+    fbExp.innerHTML = `<strong>সঠিক উত্তর:</strong> ${labels[item.ans]}) ${esc(item.options[item.ans])}<br><strong>ব্যাখ্যা:</strong> ${esc(item.exp || 'কোনো ব্যাখ্যা দেওয়া হয়নি।')}`;
   } else {
     el.classList.add('wrong'); 
     opts[item.ans].classList.add('correct'); 
     fbBox.className = 'fb bad'; 
-    fbTitle.textContent = `✘ ভুল উত্তর। সঠিক উত্তরটি হলো: ${labels[item.ans]}) ${item.options[item.ans]}`; 
+    fbTitle.textContent = '✘ ভুল!'; 
+    fbExp.innerHTML = `<strong>সঠিক উত্তর:</strong> ${labels[item.ans]}) ${esc(item.options[item.ans])}<br><strong>ব্যাখ্যা:</strong> ${esc(item.exp || 'কোনো ব্যাখ্যা দেওয়া হয়নি।')}`;
     wrongQuestions.push(item);
   }
   
-  // ব্যাখ্যা প্রদর্শন নিশ্চিত করা হলো
-  document.getElementById('fbExp').innerHTML = `<strong>ব্যাখ্যা:</strong> ${esc(item.exp || 'কোনো ব্যাখ্যা দেওয়া হয়নি।')}`;
   fbBox.style.display = 'block';
-
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.textContent = curIdx + 1 < activeList.length ? 'পরবর্তী প্রশ্ন →' : 'ফলাফল দেখো →';
   nextBtn.style.display = 'inline-block';
