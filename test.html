@@ -31,11 +31,9 @@ h1{margin:0 0 6px;font-size:1.65rem}.sub{margin:0 0 18px;color:var(--mute);font-
 .opt{padding:13px 16px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer;display:flex;align-items:center;gap:10px;font-size:1rem}
 .opt:hover{border-color:var(--brand)}.opt.correct{background:rgba(22,163,74,.14);border-color:var(--ok);color:var(--ok);font-weight:700}
 .opt.wrong{background:rgba(220,38,38,.14);border-color:var(--bad);color:var(--bad);font-weight:700}
-.fb{margin-top:16px;padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bub);display:none}
-.fb.ok{border-color:var(--ok);background:rgba(22,163,74,.12); color:var(--ok)}
-.fb.bad{border-color:var(--bad);background:rgba(220,38,38,.12); color:var(--bad)}
-.fb-title{font-weight:700;font-size:1.1rem;margin-bottom:6px}
-.fb-exp{font-size:0.98rem;color:var(--ink);margin-top:6px;line-height:1.5}
+.fb{margin-top:16px;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bub);display:none}
+.fb.ok{border-color:var(--ok);background:rgba(22,163,74,.12)}.fb.bad{border-color:var(--bad);background:rgba(220,38,38,.12)}
+.fb-title{font-weight:700;font-size:1rem;margin-bottom:4px}
 .btn{padding:11px 20px;border-radius:12px;border:0;background:var(--brand);color:var(--brand-ink);font:inherit;font-weight:700;cursor:pointer;font-size:.95rem;margin-top:16px}
 .btn.sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
 .res-big{font-size:2.1rem;font-weight:700;color:var(--brand);margin:6px 0}
@@ -50,12 +48,12 @@ h1{margin:0 0 6px;font-size:1.65rem}.sub{margin:0 0 18px;color:var(--mute);font-
   <div id="homeView">
     <a href="index.html" class="pill-btn">← প্রশ্ন করো</a>
     <h1>💻 অধ্যায়ভিত্তিক বোর্ড MCQ টেস্ট (২৫ প্রশ্ন)</h1>
-    <p class="sub">বোর্ড পরীক্ষার নিয়ম অনুযায়ী প্রতিটি অধ্যায়ে ঠিক ২৫টি প্রশ্ন এবং অটোমেটিক ২৫ মিনিট সময় পাবে।</p>
+    <p class="sub">বোর্ড পরীক্ষার নিয়ম অনুযায়ী প্রতিটি অধ্যায়ে অবধারিতভাবে ২৫টি প্রশ্ন এবং অটোমেটিক ২৫ মিনিট সময় পাবে।</p>
     <div class="tabs">
       <button class="tab active" id="tabBook" onclick="setMode('book')">📗 বইয়ের প্রশ্ন (২৫টি)</button>
       <button class="tab" id="tabAi" onclick="setMode('ai')">🤖 AI-নির্মিত প্রশ্ন (২৫টি)</button>
     </div>
-    <div class="notice" id="aiNotice">প্রতিবার AI পাঠ্যবইয়ের নোট থেকে বোর্ড স্ট্যান্ডার্ড ঠিক ২৫টি নতুন প্রশ্ন বানায় (সময়: ২৫ মিনিট)।</div>
+    <div class="notice" id="aiNotice">প্রতিবার AI পাঠ্যবইয়ের নোট থেকে বোর্ড স্ট্যান্ডার্ড ২৫টি নতুন প্রশ্ন বানায় (সময়: ২৫ মিনিট)।</div>
     <div class="grid" id="chapGrid"></div>
   </div>
 
@@ -70,13 +68,10 @@ h1{margin:0 0 6px;font-size:1.65rem}.sub{margin:0 0 18px;color:var(--mute);font-
       </div>
       <div class="qtext" id="qText"></div>
       <div class="opts" id="optList"></div>
-      
-      <!-- সুবিন্যস্ত ফিডব্যাক বক্স -->
       <div class="fb" id="fbBox">
         <div class="fb-title" id="fbTitle"></div>
-        <div class="fb-exp" id="fbExp"></div>
+        <div id="fbExp" style="margin-top: 6px; font-size: 0.95rem;"></div>
       </div>
-
       <button class="btn" id="nextBtn" style="display:none" onclick="nextQuestion()">পরবর্তী প্রশ্ন →</button>
     </div>
   </div>
@@ -92,7 +87,7 @@ h1{margin:0 0 6px;font-size:1.65rem}.sub{margin:0 0 18px;color:var(--mute);font-
     </div>
     <div class="act-row">
       <button class="btn" onclick="startChapter(activeChapIdx)">আবার টেস্ট দাও</button>
-      <button class="btn sec" id="retryWrongBtn" style="display:none" onclick="beginSession([...wrongQuestions])">ভুলগুলো আবার</button>
+      <button class="btn sec" id="retryWrongBtn" style="display:none" onclick="beginSession(wrongQuestions)">ভুলগুলো আবার</button>
       <button class="btn sec" onclick="backToChapters()">অন্য অধ্যায়</button>
     </div>
   </div>
@@ -115,7 +110,7 @@ function renderChapters() {
     <div class="ccard" onclick="startChapter(${i})">
       <div class="cnum">${c.num}</div>
       <div class="ctitle">${c.title}</div>
-      <div class="ccount">${mode === 'book' ? '📗 ২৫টি বইয়ের প্রশ্ন · ২৫ মিনিট' : '🤖 ২৫টি AI প্রশ্ন · ২৫ মিনিট'}</div>
+      <div class="ccount">${mode === 'book' ? '📗 ঠিক ২৫টি বইয়ের প্রশ্ন · ২৫ মিনিট' : '🤖 ঠিক ২৫টি AI প্রশ্ন · ২৫ মিনিট'}</div>
     </div>
   `).join('');
 }
@@ -176,7 +171,7 @@ async function startChapter(idx) {
     ? 'বাংলাদেশের নবম-দশম শ্রেণির NCTB তথ্য ও যোগাযোগ প্রযুক্তি মূল পাঠ্যবইয়ের অনুশীলনী ও বিগত বোর্ড পরীক্ষায় আসা' 
     : 'বাংলাদেশের নবম-দশম শ্রেণির NCTB তথ্য ও যোগাযোগ প্রযুক্তি পাঠ্যবই থেকে সম্পূর্ণ নতুন ও সৃজনশীল';
     
-  const prompt = `${src} "${ch.num}: ${ch.title}" অধ্যায় থেকে বাধ্যতামূলকভাবে ঠিক বা সঠিক 25টি (একদম কম বা বেশি নয়, ঠিক 25টি) MCQ প্রশ্ন তৈরি করো। প্রতিটি প্রশ্নের সাথে অবশ্যই সংক্ষিপ্ত ব্যাখ্যা ('exp' ফিল্ডে) যুক্ত করতে হবে। শুধুমাত্র নিচের JSON ফরম্যাটে উত্তর দেবে (বাইরে কোনো কথা বা markdown লিখবে না): [{"q":"প্রশ্ন","options":["ক","খ","গ","ঘ"],"ans":0,"exp":"সংক্ষিপ্ত ব্যাখ্যা"}] এখানে ans হলো সঠিক অপশনের ইনডেক্স (0, 1, 2 বা 3)।`;
+  const prompt = `${src} "${ch.num}: ${ch.title}" অধ্যায় থেকে অবধারিতভাবে ঠিক ২০৫টি বা ভুল বললাম, **ঠিক 25টি** MCQ প্রশ্ন তৈরি করবে। এর বেশি বা কম একটিও হওয়া যাবে না। শুধুমাত্র নিচের JSON ফরম্যাটে উত্তর দেবে (বাইরে কোনো কথা বা markdown লিখবে না): [{"q":"প্রশ্ন","options":["ক","খ","গ","ঘ"],"ans":0,"exp":"সংক্ষিপ্ত ব্যাখ্যা (অধ্যায় ও পৃষ্ঠা নম্বর সহ)"}] এখানে ans হলো সঠিক অপশনের ইনডেক্স (0, 1, 2 বা 3)।`;
 
   try {
     const res = await fetch('/api/chat', { 
@@ -186,15 +181,15 @@ async function startChapter(idx) {
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    const raw = data.reply.replace(/```json|```/g, '').trim();
-    let list = JSON.parse(raw.slice(raw.indexOf('['), raw.lastIndexOf(']') + 1));
     
-    // নিশ্চিত করা হলো যেন প্রশ্ন সংখ্যা কখনোই ২৫টির বেশি না হয়
-    if (list.length > 25) {
-      list = list.slice(0, 25);
-    }
-
-    beginSession(list);
+    // JSON পার্স করার সময় যেকোনো এক্সট্রা টেক্সট বা ব্যাকটিক দূর করা
+    let raw = data.reply.replace(/```json|```/g, '').trim();
+    let parsedList = JSON.parse(raw.slice(raw.indexOf('['), raw.lastIndexOf(']') + 1));
+    
+    // নিশ্চিত করা যেন সর্বোচ্চ এবং ঠিক ২৫টি প্রশ্নই নেওয়া হয়
+    activeList = parsedList.slice(0, 25);
+    
+    beginSession(activeList);
   } catch (e) {
     document.getElementById('loadingBox').innerHTML = `⚠️ সমস্যা হয়েছে: ${esc(e.message)}<br><br><button class="btn sec" onclick="backToChapters()">ফিরে যাও</button>`;
   }
@@ -235,17 +230,18 @@ function selectOption(chosenIdx, el) {
     el.classList.add('correct'); 
     fbBox.className = 'fb ok'; 
     fbTitle.textContent = '✔ সঠিক!';
-    fbExp.innerHTML = `<strong>সঠিক উত্তর:</strong> ${labels[item.ans]}) ${esc(item.options[item.ans])}<br><strong>ব্যাখ্যা:</strong> ${esc(item.exp || 'কোনো ব্যাখ্যা দেওয়া হয়নি।')}`;
   } else {
     el.classList.add('wrong'); 
     opts[item.ans].classList.add('correct'); 
     fbBox.className = 'fb bad'; 
-    fbTitle.textContent = '✘ ভুল!'; 
-    fbExp.innerHTML = `<strong>সঠিক উত্তর:</strong> ${labels[item.ans]}) ${esc(item.options[item.ans])}<br><strong>ব্যাখ্যা:</strong> ${esc(item.exp || 'কোনো ব্যাখ্যা দেওয়া হয়নি।')}`;
+    fbTitle.textContent = `✘ ভুল। সঠিক উত্তর: ${labels[item.ans]}`; 
     wrongQuestions.push(item);
   }
   
+  // ব্যাখ্যা বা এক্সপ্লানেশন সঠিকভাবে বসানো হলো
+  fbExp.textContent = item.exp ? `ব্যাখ্যা: ${item.exp}` : '';
   fbBox.style.display = 'block';
+  
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.textContent = curIdx + 1 < activeList.length ? 'পরবর্তী প্রশ্ন →' : 'ফলাফল দেখো →';
   nextBtn.style.display = 'inline-block';
@@ -271,8 +267,8 @@ function showResult() {
     document.getElementById('wrongList').innerHTML = wrongQuestions.map(w => `
       <div class="wcard">
         <div class="wq">${esc(w.q)}</div>
-        <div class="wa">✔ সঠিক উত্তর: ${labels[w.ans]}) ${esc(w.options[w.ans])}</div>
-        <div class="we"><strong>ব্যাখ্যা:</strong> ${esc(w.exp || '')}</div>
+        <div class="wa">✔ সঠিক: ${esc(w.options[w.ans])}</div>
+        <div class="we">${esc(w.exp || '')}</div>
       </div>
     `).join('');
   } else { 
